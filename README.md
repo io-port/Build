@@ -15,7 +15,7 @@ Expects a 64-bit INTEGER and REAL, e.g. in /usr/local/include/obnc/OBNCConfig.h 
 ```
 With obnc configured for 64-bit then:
 
-`obnc oxpc`
+`obnc oxpc.Mod`
 
 That should recursively build the oxpc compiler.
 
