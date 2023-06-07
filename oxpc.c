@@ -4,7 +4,7 @@
 #include ".obnc/OXP.h"
 #include <obnc/OBNC.h>
 
-#define OBERON_SOURCE_FILENAME "oxpc.obn"
+#define OBERON_SOURCE_FILENAME "oxpc.Mod"
 
 static OXP__FileName_ f_;
 static OXP__Options_ o_;
@@ -30,9 +30,9 @@ int main(int argc, char *argv[])
 	}else{
 		n=1;
 	}
-	for (i=0;i<64;i++){f_[i]=argv[n][i];} f_[63]=0;
+	for (i=0;i<32;i++){f_[i]=argv[n][i];} f_[31]=0;
 
-	OXP__Compile_(f_,o_);
+	OXP__Compile_(f_, 32, o_, 8);
     }else{
 	    printf("Usage: oxpc [-options] sourcefile.\n");
     }

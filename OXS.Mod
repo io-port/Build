@@ -78,6 +78,7 @@ MODULE OXS; (* NW 19.9.93 / 15.3.2017  Scanner in Oberon-07*)
 
   TYPE
     Ident* = ARRAY IdLen OF CHAR;
+    Keyword* = ARRAY 12 OF CHAR;
 
   VAR ival*, slen*: INTEGER;  (*results of Get*)
     rval*: REAL;
@@ -94,7 +95,7 @@ MODULE OXS; (* NW 19.9.93 / 15.3.2017  Scanner in Oberon-07*)
     k: INTEGER;
     KWX: ARRAY 10 OF INTEGER;
     keyTab: ARRAY NKW OF
-        RECORD sym: INTEGER; id: ARRAY 12 OF CHAR END;
+        RECORD sym: INTEGER; id: Keyword END;
 
   (* begin-section-description
 ## ---------- Lexer
@@ -105,7 +106,7 @@ MODULE OXS; (* NW 19.9.93 / 15.3.2017  Scanner in Oberon-07*)
 **Emit** Outputs text to the console.
   end-procedure-description *)
   PROCEDURE Emit(s: ARRAY OF CHAR);
-    VAR ss: ARRAY 32 OF CHAR;
+    VAR ss: ARRAY 128 OF CHAR;
   BEGIN ss:=s; Out.String(ss); 
   END Emit;
 
@@ -179,7 +180,7 @@ MODULE OXS; (* NW 19.9.93 / 15.3.2017  Scanner in Oberon-07*)
 **Mark** reports an error to the Oberon system log.
   end-procedure-description *)
   PROCEDURE Mark*(msg: ARRAY OF CHAR);
-    VAR p: INTEGER; ss: ARRAY 32 OF CHAR;
+    VAR p: INTEGER; ss: ARRAY 128 OF CHAR;
   BEGIN p := Pos();
     IF (p > errpos) & (errcnt < 25) THEN
       Emit(" pos ");
@@ -206,7 +207,7 @@ MODULE OXS; (* NW 19.9.93 / 15.3.2017  Scanner in Oberon-07*)
 **Value** places a note in the Oberon system log.
   end-procedure-description *)
   PROCEDURE Value*(msg: ARRAY OF CHAR; val: INTEGER);
-    VAR p: INTEGER; ss: ARRAY 32 OF CHAR;
+    VAR p: INTEGER; ss: ARRAY 128 OF CHAR;
   BEGIN p := Pos();
       Out.Ln; Emit( "  pos "); Out.Int( p, 1); Emit( " ");
       Emit( msg); Emit( " ");  Out.Int( val, 1) 
@@ -522,7 +523,7 @@ MODULE OXS; (* NW 19.9.93 / 15.3.2017  Scanner in Oberon-07*)
 ---
 **EnterKW** adds a symbol to the keyword table.
   end-procedure-description *)
-  PROCEDURE EnterKW*(sym: INTEGER; name: ARRAY OF CHAR; kl: INTEGER);
+  PROCEDURE EnterKW*(sym: INTEGER; name: Keyword; kl: INTEGER);
   VAR i:INTEGER;
   BEGIN
     IF sym > -1 THEN

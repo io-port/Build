@@ -68,7 +68,7 @@ MODULE OXX; (* C.Perkis 2020*)
 **Emit** Outputs text to the console.
   end-procedure-description *)
   PROCEDURE Emit(s: ARRAY OF CHAR);
-    VAR ss: ARRAY 32 OF CHAR;
+    VAR ss: ARRAY 128 OF CHAR;
   BEGIN ss:=s; Out.String(ss);
   END Emit;
 
@@ -85,7 +85,7 @@ MODULE OXX; (* C.Perkis 2020*)
 **Mark** reports an error to the Oberon system log.
   end-procedure-description *)
   PROCEDURE Mark*(msg: ARRAY OF CHAR);
-    VAR p: INTEGER; ss: ARRAY 32 OF CHAR;
+    VAR p: INTEGER; ss: ARRAY 128 OF CHAR;
   BEGIN p := OXS.Pos();
     IF (p > OXS.errpos) & (OXS.errcnt < 25) THEN
       Emit(" pos ");

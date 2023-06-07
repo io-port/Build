@@ -11,3 +11,4 @@ mv bak/Out.Mod ./ 2> /dev/null
 ./oxpc -rs OXT.Mod
 ./oxpc -rs OXX.Mod
 ./oxpc -rs OXG.Mod
+./oxpc -rs OXP.Mod

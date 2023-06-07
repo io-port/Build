@@ -61,6 +61,7 @@ MODULE OXB;   (*NW 25.6.2014  / AP 4.3.2020 / 8.3.2019  in Oberon-07 / CP 11.202
       size*: INTEGER  (*in bytes; always multiple of 4, except for Byte, Bool and Char*)
     END ;
 
+
   (* Object classes and the meaning of "val":
     class    val
     ----------
@@ -94,7 +95,7 @@ MODULE OXB;   (*NW 25.6.2014  / AP 4.3.2020 / 8.3.2019  in Oberon-07 / CP 11.202
 **Emit** Outputs text to the console.
   end-procedure-description *)
   PROCEDURE Emit(s: ARRAY OF CHAR);
-    VAR ss: ARRAY 32 OF CHAR;
+    VAR ss: ARRAY 128 OF CHAR;
   BEGIN ss:=s; Out.String(ss); 
   END Emit;
 
@@ -111,7 +112,7 @@ MODULE OXB;   (*NW 25.6.2014  / AP 4.3.2020 / 8.3.2019  in Oberon-07 / CP 11.202
 **Mark** reports an error to the Oberon system log.
   end-procedure-description *)
   PROCEDURE Mark*(msg: ARRAY OF CHAR);
-    VAR p: INTEGER; ss: ARRAY 32 OF CHAR;
+    VAR p: INTEGER; ss: ARRAY 128 OF CHAR;
   BEGIN p := OXS.Pos();
     IF (p > OXS.errpos) & (OXS.errcnt < 25) THEN
       Emit(" pos ");
@@ -499,7 +500,7 @@ MODULE OXB;   (*NW 25.6.2014  / AP 4.3.2020 / 8.3.2019  in Oberon-07 / CP 11.202
 ---
 **Enter** introduces a pre-defined type, function, or procedure.
   end-procedure-description *)
-  PROCEDURE Enter*(name: ARRAY OF CHAR; cl: INTEGER; type: Type; n: INTEGER);
+  PROCEDURE Enter*(name: OXS.Ident; cl: INTEGER; type: Type; n: INTEGER);
     VAR obj: Object;
   BEGIN NEW(obj); obj.name := name; obj.class := cl; obj.type := type; obj.val := n; obj.dsc := NIL;
     IF cl = Typ THEN type.typobj := obj END ;

@@ -1,9 +1,12 @@
     MODULE oxpc;
-      IMPORT Out, OXP;
+      IMPORT OXP;
 
       VAR 
-        f: OXP.Filename;
+        f: OXP.FileName;
         o: OXP.Options;
 
     BEGIN
+        o:="-rs";
+        f:="M.Mod";
+	OXP.Compile(f,"-rs");
     END oxpc.

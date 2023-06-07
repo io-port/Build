@@ -37,6 +37,8 @@ MODULE Texts; (*JG 21.11.90 / NW 11.7.90 / 24.12.95 / 22.11.10 / 18.11.2014 / 10
     Text* = POINTER TO TextDesc;
     Buffer* = POINTER TO BufDesc;
 
+    Filename* = ARRAY 32 OF CHAR;
+
     Processor* = PROCEDURE (B: Buffer): Buffer;
 (*    Feeder* = PROCEDURE(T: Text; R: Reader); *)
     Notifier* = PROCEDURE (T: Text; op: INTEGER; beg, end: INTEGER);
@@ -135,7 +137,7 @@ MODULE Texts; (*JG 21.11.90 / NW 11.7.90 / 24.12.95 / 22.11.10 / 18.11.2014 / 10
     T.len:=b;
   END Load;
 
-  PROCEDURE Open* (T: Text; name: ARRAY OF CHAR );
+  PROCEDURE Open* (T: Text; name: Filename );
     VAR f: Files.File; R: Files.Rider; Q, q: Piece;
       tag: CHAR; i, len: INTEGER; b: BYTE; fn: ARRAY 32 OF CHAR;
   BEGIN 

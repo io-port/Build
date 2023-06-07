@@ -77,7 +77,7 @@ MODULE OXG; (* N.Wirth, 16.4.2016 / 4.4.2017 / 31.5.2019  Oberon compiler; code 
 **Emit** Outputs text to the console.
   end-procedure-description *)
   PROCEDURE Emit(s: ARRAY OF CHAR);
-    VAR ss: ARRAY 32 OF CHAR;
+    VAR ss: ARRAY 128 OF CHAR;
   BEGIN ss:=s; Out.String(ss);
   END Emit;
 
@@ -94,7 +94,7 @@ MODULE OXG; (* N.Wirth, 16.4.2016 / 4.4.2017 / 31.5.2019  Oberon compiler; code 
 **Mark** reports an error to the Oberon system log.
   end-procedure-description *)
   PROCEDURE Mark*(msg: ARRAY OF CHAR);
-    VAR p: INTEGER; ss: ARRAY 32 OF CHAR;
+    VAR p: INTEGER; ss: ARRAY 128 OF CHAR;
   BEGIN p := OXS.Pos();
     IF (p > OXS.errpos) & (OXS.errcnt < 25) THEN
       Emit(" pos ");
