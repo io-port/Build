@@ -89,9 +89,38 @@ MODULE OXB;   (*NW 25.6.2014  / AP 4.3.2020 / 8.3.2019  in Oberon-07 / CP 11.202
     nofmod, Ref: INTEGER;
     typtab: ARRAY maxTypTab OF Type;
 
-  (* begin-section-description
-## ---------- Scopes
-  end-section-description *)
+  (* begin-procedure-description
+---
+**Emit** Outputs text to the console.
+  end-procedure-description *)
+  PROCEDURE Emit(s: ARRAY OF CHAR);
+    VAR ss: ARRAY 32 OF CHAR;
+  BEGIN ss:=s; Out.String(ss); 
+  END Emit;
+
+  (* begin-procedure-description
+---
+**EmitLn** Outputs text to the console with newline.
+  end-procedure-description *)
+  PROCEDURE EmitLn;
+  BEGIN Out.Ln
+  END EmitLn;
+
+  (* begin-procedure-description
+---
+**Mark** reports an error to the Oberon system log.
+  end-procedure-description *)
+  PROCEDURE Mark*(msg: ARRAY OF CHAR);
+    VAR p: INTEGER; ss: ARRAY 32 OF CHAR;
+  BEGIN p := OXS.Pos();
+    IF (p > OXS.errpos) & (OXS.errcnt < 25) THEN
+      Emit(" pos ");
+      Out.Int(p, 1); Emit( " " );
+      ss:= msg; Emit( ss ); EmitLn
+    END ;
+    OXS.BumpErr(p+4)
+(*    INC(OXS.errcnt); OXS.errpos := p + 4 *)
+  END Mark;
 
   PROCEDURE NewObj*(VAR obj: Object; id: OXS.Ident; class: INTEGER);  (*insert new Object with name id*)
     VAR new, x: Object;
@@ -100,7 +129,7 @@ MODULE OXB;   (*NW 25.6.2014  / AP 4.3.2020 / 8.3.2019  in Oberon-07 / CP 11.202
     IF x.next = NIL THEN
       NEW(new); new.name := id; new.class := class; new.next := NIL; new.rdo := FALSE; new.dsc := NIL;
       x.next := new; obj := new
-    ELSE obj := x.next; OXS.Mark("mult def")
+    ELSE obj := x.next; Mark("mult def")
     END 
   END NewObj;
 
@@ -180,11 +209,11 @@ MODULE OXB;   (*NW 25.6.2014  / AP 4.3.2020 / 8.3.2019  in Oberon-07 / CP 11.202
         IF decl THEN mod.type := noType ELSE mod.type := nilType END ;
         obj1.next := mod; obj := mod
       ELSIF decl THEN
-        IF obj.type.form = NoTyp THEN OXS.Mark("mult def") ELSE OXS.Mark("invalid import order") END
-      ELSE OXS.Mark("conflict with alias")
+        IF obj.type.form = NoTyp THEN Mark("mult def") ELSE Mark("invalid import order") END
+      ELSE Mark("conflict with alias")
       END
     ELSIF decl THEN (*module already present, explicit import by declaration*)
-      IF  obj.type.form = NoTyp THEN OXS.Mark("mult def") ELSE OXS.Mark("invalid import order") END
+      IF  obj.type.form = NoTyp THEN Mark("mult def") ELSE Mark("invalid import order") END
     END ;
     RETURN obj
   END ThisModule;
@@ -205,7 +234,7 @@ MODULE OXB;   (*NW 25.6.2014  / AP 4.3.2020 / 8.3.2019  in Oberon-07 / CP 11.202
   end-procedure-description *)
   PROCEDURE InType(VAR R: Files.Rider; thismod: Object; VAR T: Type);
     VAR key: INTEGER;
-      ref, class, form, np, readonly: INTEGER;
+      ref, class, form, np, x, readonly: INTEGER;
       fld, par, obj, mod, last: Object;
       t: Type;
       name, modname: OXS.Ident;
@@ -278,14 +307,14 @@ MODULE OXB;   (*NW 25.6.2014  / AP 4.3.2020 / 8.3.2019  in Oberon-07 / CP 11.202
       thismod := ThisModule(modid, modid1, TRUE,  key); DEC(nofmod);
       thismod.lev := 0; thismod.dsc := system; thismod.rdo := TRUE
     ELSE MakeFileName(fname, modid1, ext); 
-      Out.Ln; Out.String(" "); Out.String(fname);
+      Emit(" "); Emit(fname); 
       F := Files.Old(fname);
       IF F # NIL THEN
         Files.Set(R, F, 0); 
 	Files.ReadInt(R, key); Files.ReadInt(R, key); Files.ReadString(R, modname);
         thismod := ThisModule(modid, modid1, TRUE, key); thismod.rdo := TRUE;
         Read(R, class); (*version key*)
-        IF class # versionkey THEN OXS.Mark("wrong version") END ;
+        IF class # versionkey THEN Mark("wrong version") END ;
         Read(R, class);
         WHILE class # 0 DO
           NEW(obj); obj.class := class; Files.ReadString(R, obj.name);
@@ -301,7 +330,7 @@ MODULE OXB;   (*NW 25.6.2014  / AP 4.3.2020 / 8.3.2019  in Oberon-07 / CP 11.202
           END ;
           obj.next := thismod.dsc; thismod.dsc := obj; Read(R, class)
         END ;
-      ELSE OXS.Mark("import not available")
+      ELSE Mark("import not available")
       END;
     END
   END Import;
@@ -375,7 +404,7 @@ MODULE OXB;   (*NW 25.6.2014  / AP 4.3.2020 / 8.3.2019  in Oberon-07 / CP 11.202
         mod := topScope.next;
         WHILE (mod # NIL) & (mod.lev # t.mno) DO mod := mod.next END ;
         IF mod # NIL THEN Files.WriteString(R, mod(Module).orgname); Files.WriteInt(R, mod.val); Files.WriteString(R, obj.name)
-        ELSE OXS.Mark("re-export not found"); Write(R, 0)
+        ELSE Mark("re-export not found"); Write(R, 0)
         END
       ELSE Write(R, 0)
       END
@@ -438,7 +467,7 @@ MODULE OXB;   (*NW 25.6.2014  / AP 4.3.2020 / 8.3.2019  in Oberon-07 / CP 11.202
     IF sum # oldkey THEN
       IF newSF OR (F1 = NIL) THEN
         key := sum; newSF := TRUE; Files.Set(R, F, 4); Files.WriteInt(R, sum); Files.Register(F)  (*insert checksum*)
-      ELSE OXS.Mark("new symbol file inhibited")
+      ELSE Mark("new symbol file inhibited")
       END
     ELSE newSF := FALSE; key := sum
     END
@@ -575,3 +604,5 @@ MODULE OXB;   (*NW 25.6.2014  / AP 4.3.2020 / 8.3.2019  in Oberon-07 / CP 11.202
   END Init;
 BEGIN
 END OXB.
+
+

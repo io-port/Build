@@ -75,6 +75,14 @@ MODULE Files;
 (**read from a file.*)
     END ReadString;
 
+    PROCEDURE ReadInt*(VAR r: Rider; VAR t: INTEGER );
+(**read an integer from a file.*)
+    END ReadInt;
+
+    PROCEDURE ReadNum*(VAR r: Rider; VAR t: INTEGER );
+(**read a number from a file.*)
+    END ReadNum;
+
     PROCEDURE Write*(VAR x: Rider; i: INTEGER);
 (**write a char or byte? to a file.*)
     END Write;
@@ -82,6 +90,10 @@ MODULE Files;
     PROCEDURE WriteInt*(VAR x: Rider; i: INTEGER);
 (**write an INTEGER to a file.*)
     END WriteInt;
+
+    PROCEDURE WriteNum*(VAR x: Rider; i: INTEGER);
+(**write a number to a file.*)
+    END WriteNum;
 
     PROCEDURE WriteString*(VAR r: Rider; s: Filename );
 (**write to a file.*)

@@ -7,3 +7,4 @@ mv bak/Out.Mod ./ 2> /dev/null
 ./oxpc -rs Texts.Mod
 ./oxpc -rs Out.Mod
 ./oxpc -rs OXS.Mod
+./oxpc -rs OXB.Mod
