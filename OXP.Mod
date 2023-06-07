@@ -1174,7 +1174,7 @@ expression0 is assigned to the procedure variable `expression` to allow the forw
   end-procedure-description *)
   PROCEDURE Module;
     VAR key: INTEGER;
-  BEGIN Out.String( "  compiling "); OXS.Get(sym);
+  BEGIN OXS.Get(sym);
     IF OXS.ccARCH = OXS.RISC5 THEN Out.String( " for RISC5 ") END;
     IF OXS.ccARCH = OXS.X8664 THEN Out.String( " for X8664 ") END;
     IF OXS.ccARCH = OXS.ARM64 THEN Out.String( " for ARM64 ") END;
@@ -1214,7 +1214,7 @@ expression0 is assigned to the procedure variable `expression` to allow the forw
       Out.Ln;
       IF OXS.errcnt = 0 THEN
         OXG.Close(modid, key, exno, ccARCH);
-        Out.String("PC, DC, Key: "); Out.Int(OXG.pc, 6); Out.Int( dc, 6); Out.Hex(key)
+        Out.String(" PC, DC, Key: "); Out.Int(OXG.pc, 6); Out.Int( dc, 6); Out.Hex(key)
       ELSE Out.Ln; Out.String("compilation FAILED")
       END ;
       Out.Ln; 

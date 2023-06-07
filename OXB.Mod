@@ -15,7 +15,7 @@ end-module-use-description *)
 
 end-module-develop-description *)
 MODULE OXB;   (*NW 25.6.2014  / AP 4.3.2020 / 8.3.2019  in Oberon-07 / CP 11.2020*)
-  IMPORT Files, OXS;
+  IMPORT Out, Files, OXS;
   (*Definition of data types Object and Type, which together form the data structure
     called "symbol table". Contains procedures for creation of Objects, and for search:
     NewObj, this, thisimport, thisfield (and OpenScope, CloseScope).
@@ -277,9 +277,12 @@ MODULE OXB;   (*NW 25.6.2014  / AP 4.3.2020 / 8.3.2019  in Oberon-07 / CP 11.202
     IF modid1 = "SYSTEM" THEN
       thismod := ThisModule(modid, modid1, TRUE,  key); DEC(nofmod);
       thismod.lev := 0; thismod.dsc := system; thismod.rdo := TRUE
-    ELSE MakeFileName(fname, modid1, ext); F := Files.Old(fname);
+    ELSE MakeFileName(fname, modid1, ext); 
+      Out.Ln; Out.String(" "); Out.String(fname);
+      F := Files.Old(fname);
       IF F # NIL THEN
-        Files.Set(R, F, 0); Files.ReadInt(R, key); Files.ReadInt(R, key); Files.ReadString(R, modname);
+        Files.Set(R, F, 0); 
+	Files.ReadInt(R, key); Files.ReadInt(R, key); Files.ReadString(R, modname);
         thismod := ThisModule(modid, modid1, TRUE, key); thismod.rdo := TRUE;
         Read(R, class); (*version key*)
         IF class # versionkey THEN OXS.Mark("wrong version") END ;
@@ -299,7 +302,7 @@ MODULE OXB;   (*NW 25.6.2014  / AP 4.3.2020 / 8.3.2019  in Oberon-07 / CP 11.202
           obj.next := thismod.dsc; thismod.dsc := obj; Read(R, class)
         END ;
       ELSE OXS.Mark("import not available")
-      END
+      END;
     END
   END Import;
   
