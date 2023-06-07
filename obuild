@@ -1,3 +1,9 @@
 #!/bin/bash
 mv bak/Files.Mod ./ 2> /dev/null
+mv bak/Out.Mod ./ 2> /dev/null
 ./oxpc -rs M.Mod
+./oxpc -rs Files.Mod
+./oxpc -rs Fonts.Mod
+./oxpc -rs Texts.Mod
+./oxpc -rs Out.Mod
+./oxpc -rs OXS.Mod

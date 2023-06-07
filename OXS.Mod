@@ -102,6 +102,23 @@ MODULE OXS; (* NW 19.9.93 / 15.3.2017  Scanner in Oberon-07*)
 
   (* begin-procedure-description
 ---
+**Emit** Outputs text to the console.
+  end-procedure-description *)
+  PROCEDURE Emit(s: ARRAY OF CHAR);
+    VAR ss: ARRAY 32 OF CHAR;
+  BEGIN ss:=s; Out.String(ss); 
+  END Emit;
+
+  (* begin-procedure-description
+---
+**EmitLn** Outputs text to the console with newline.
+  end-procedure-description *)
+  PROCEDURE EmitLn;
+  BEGIN Out.Ln
+  END EmitLn;
+
+  (* begin-procedure-description
+---
 **SetSigCR** sets whether or not a carriage return or newline is significant.
   end-procedure-description *)
   PROCEDURE SetSigCR*(sig: BOOLEAN);
@@ -153,11 +170,12 @@ MODULE OXS; (* NW 19.9.93 / 15.3.2017  Scanner in Oberon-07*)
 **Mark** reports an error to the Oberon system log.
   end-procedure-description *)
   PROCEDURE Mark*(msg: ARRAY OF CHAR);
-    VAR p: INTEGER;
+    VAR p: INTEGER; 
   BEGIN p := Pos();
     IF (p > errpos) & (errcnt < 25) THEN
-      Out.Ln; Out.String( "  pos "); Out.Int(p, 1); Out.String( " ");
-      Out.String( msg)
+      Emit(" pos ");
+      Out.Int(p, 1); Emit( " " );
+      Emit( msg ); EmitLn
     END ;
     INC(errcnt); errpos := p + 4
   END Mark;
@@ -169,8 +187,8 @@ MODULE OXS; (* NW 19.9.93 / 15.3.2017  Scanner in Oberon-07*)
   PROCEDURE Note*(msg: ARRAY OF CHAR);
     VAR p: INTEGER;
   BEGIN p := Pos();
-      Out.Ln; Out.String( "  pos "); Out.Int( p, 1); Out.String( " ");
-      Out.String( msg) 
+      Out.Ln; Emit( "  pos "); Out.Int( p, 1); Emit( " ");
+      Emit( msg) 
   END Note;
 
   (* begin-procedure-description
@@ -178,10 +196,10 @@ MODULE OXS; (* NW 19.9.93 / 15.3.2017  Scanner in Oberon-07*)
 **Value** places a note in the Oberon system log.
   end-procedure-description *)
   PROCEDURE Value*(msg: ARRAY OF CHAR; val: INTEGER);
-    VAR p: INTEGER;
+    VAR p: INTEGER; ss: ARRAY 32 OF CHAR;
   BEGIN p := Pos();
-      Out.Ln; Out.String( "  pos "); Out.Int( p, 1); Out.String( " ");
-      Out.String( msg); Out.String( " ");  Out.Int( val, 1) 
+      Out.Ln; Emit( "  pos "); Out.Int( p, 1); Emit( " ");
+      Emit( msg); Emit( " ");  Out.Int( val, 1) 
   END Value;
 
   (* begin-procedure-description
@@ -514,3 +532,5 @@ BEGIN
   KWX[1]:=0;
   (* sigCR := FALSE; semiCR := FALSE; *)
 END OXS.
+
+

@@ -1,3 +1,4 @@
 #!/bin/bash
 mv Files.Mod bak/ 2> /dev/null
+mv Out.Mod bak/ 2> /dev/null
 obnc oxpc.Mod
