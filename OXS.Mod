@@ -86,7 +86,7 @@ MODULE OXS; (* NW 19.9.93 / 15.3.2017  Scanner in Oberon-07*)
     errcnt*: INTEGER;
     ccARCH*, ccWordsize, ccStackalign: INTEGER;
     ch: CHAR;  (*last character read*)
-    errpos: INTEGER;
+    errpos*: INTEGER;
     R: Texts.Reader;
     W: Texts.Writer;
     commentstyle: INTEGER;
@@ -167,17 +167,27 @@ MODULE OXS; (* NW 19.9.93 / 15.3.2017  Scanner in Oberon-07*)
 
   (* begin-procedure-description
 ---
+**BumpErr** Bump the error count and location.
+  end-procedure-description *)
+  PROCEDURE BumpErr*(l: INTEGER);
+  BEGIN
+    INC(errcnt); errpos := l
+  END BumpErr;
+
+  (* begin-procedure-description
+---
 **Mark** reports an error to the Oberon system log.
   end-procedure-description *)
   PROCEDURE Mark*(msg: ARRAY OF CHAR);
-    VAR p: INTEGER; 
+    VAR p: INTEGER; ss: ARRAY 32 OF CHAR;
   BEGIN p := Pos();
     IF (p > errpos) & (errcnt < 25) THEN
       Emit(" pos ");
       Out.Int(p, 1); Emit( " " );
-      Emit( msg ); EmitLn
+      ss:= msg; Emit( ss ); EmitLn
     END ;
-    INC(errcnt); errpos := p + 4
+(*    INC(errcnt); errpos := p + 4 *)
+    BumpErr( p + 4 )
   END Mark;
 
   (* begin-procedure-description

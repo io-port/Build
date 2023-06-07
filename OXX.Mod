@@ -61,6 +61,42 @@ MODULE OXX; (* C.Perkis 2020*)
     it2: ARRAY 4 OF INTEGER;
     it3: ARRAY 16 OF INTEGER;
 *)  
+
+
+  (* begin-procedure-description
+---
+**Emit** Outputs text to the console.
+  end-procedure-description *)
+  PROCEDURE Emit(s: ARRAY OF CHAR);
+    VAR ss: ARRAY 32 OF CHAR;
+  BEGIN ss:=s; Out.String(ss);
+  END Emit;
+
+  (* begin-procedure-description
+---
+**EmitLn** Outputs text to the console with newline.
+  end-procedure-description *)
+  PROCEDURE EmitLn;
+  BEGIN Out.Ln
+  END EmitLn;
+
+  (* begin-procedure-description
+---
+**Mark** reports an error to the Oberon system log.
+  end-procedure-description *)
+  PROCEDURE Mark*(msg: ARRAY OF CHAR);
+    VAR p: INTEGER; ss: ARRAY 32 OF CHAR;
+  BEGIN p := OXS.Pos();
+    IF (p > OXS.errpos) & (OXS.errcnt < 25) THEN
+      Emit(" pos ");
+      Out.Int(p, 1); Emit( " " );
+      ss:= msg; Emit( ss ); EmitLn
+    END ;
+    OXS.BumpErr(p+4)
+(*    INC(OXS.errcnt); OXS.errpos := p + 4 *)
+  END Mark;
+
+
   
   (* begin-section-description
 ## ---------- Fixup Chains Updating
@@ -252,7 +288,7 @@ MODULE OXX; (* C.Perkis 2020*)
     IF strx + len + 4 < maxStrx THEN
       WHILE len > 0 DO str[strx] := OXS.str[i]; INC(strx); INC(i); DEC(len) END ;
       WHILE strx MOD 4 # 0 DO str[strx] := 0X; INC(strx) END
-    ELSE OXS.Mark("too many strings")
+    ELSE Mark("too many strings")
     END
   END InternString;
 
@@ -308,6 +344,18 @@ MODULE OXX; (* C.Perkis 2020*)
     END
   END FindPtrs;
 
+  (* begin-procedure-description
+---
+**MakeFileName**  ??
+  end-procedure-description *)
+  PROCEDURE MakeFileName*(VAR FName: OXS.Ident; name, ext: ARRAY OF CHAR);
+    VAR i, j: INTEGER;
+  BEGIN i := 0; j := 0;  (*assume name suffix less than 4 characters*)
+    WHILE (i < OXS.IdLen-5) & (name[i] > 0X) DO FName[i] := name[i]; INC(i) END ;
+    REPEAT FName[i]:= ext[j]; INC(i); INC(j) UNTIL ext[j] = 0X;
+    FName[i] := 0X
+  END MakeFileName;
+
 
   (* begin-procedure-description
 ---
@@ -319,11 +367,10 @@ MODULE OXX; (* C.Perkis 2020*)
                    version, varsize, tdx, strx: INTEGER);
     VAR obj: OXB.Object;
       i, t, comsize, nofimps, nofptrs, size: INTEGER;
-      name: OXS.Ident;
+      name: OXS.Ident; ss: ARRAY 32 OF CHAR;
       F: Files.File; R: Files.Rider;
   BEGIN 
     IF version = 0 THEN (* baremetal module exit code - branch to reset vector via register 0*)
-      Out.String("Writing Baremetal Exit Code"); Out.Ln; 
       IF OXS.ccARCH = OXS.RISC5 THEN OXT.RPut1(3,  pc, pcb, Mov, 0, 0, 0); OXT.RPut3(pc, pcb, BR, 7, 0)   END;
       IF OXS.ccARCH = OXS.ERISC5 THEN OXT.EPut1(3,  pc, pcb, Mov, 0, 0, 0); OXT.EPut3(pc, pcb, BR, 7, 0)   END;
       IF OXS.ccARCH = OXS.X8664 THEN OXT.IPut1(3,  pc, pcb, Mov, 0, 0, 0); OXT.IPut3(pc, pcb, BR, 7, 0)   END;
@@ -335,7 +382,6 @@ MODULE OXX; (* C.Perkis 2020*)
       IF OXS.ccARCH = OXS.RISCV32 THEN OXT.vPut1(3,  pc, pcb, Mov, 0, 0, 0); OXT.vPut3(pc, pcb, BR, 7, 0) END;
       IF OXS.ccARCH = OXS.WASM THEN OXT.WPut1(3,  pc, pcb, Mov, 0, 0, 0); OXT.WPut3(pc, pcb, BR, 7, 0) END;
     ELSE (* regular module exit code *)
-      Out.String("Writing Module Exit Code"); Out.Ln; 
       IF OXS.ccARCH = OXS.RISC5 THEN OXT.RPut2(pc, pcb, Ldr, LNK, SP, 0); OXT.RPut1(4,  pc, pcb, Add, SP, SP, 4); OXT.RPut3(pc, pcb, BR, 7, LNK)   END;
       IF OXS.ccARCH = OXS.ERISC5 THEN OXT.EPut2(pc, pcb, Ldr, LNK, SP, 0); OXT.EPut1(4,  pc, pcb, Add, SP, SP, 4); OXT.EPut3(pc, pcb, BR, 7, LNK)   END;
       IF OXS.ccARCH = OXS.X8664 THEN OXT.IPut2(pc, pcb, Ldr, LNK, SP, 0); OXT.IPut1(4,  pc, pcb, Add, SP, SP, 4); OXT.IPut3(pc, pcb, BR, 7, LNK)   END;
@@ -361,7 +407,6 @@ MODULE OXX; (* C.Perkis 2020*)
       IF OXS.ccARCH = OXS.WASM THEN code[0] := 6FH + (vUJ(entry) * 1000H) END;
     END;
 *)
-    Out.String("Counting imports, commsize. pointers"); Out.Ln; 
     obj := OXB.topScope.next; nofimps := 0; comsize := 4; nofptrs := 0;
     WHILE obj # NIL DO
       IF (obj.class = OXB.Mod) & (obj.dsc # OXB.system) THEN INC(nofimps) (*count imports*)
@@ -377,18 +422,17 @@ MODULE OXX; (* C.Perkis 2020*)
 
     size := varsize + strx + comsize + (pc + nofimps + nofent + nofptrs + 1)*4;  (*varsize includes type descriptors*)
      
-    IF OXS.ccARCH = OXS.RISC5 THEN OXB.MakeFileName(name, modid, ".rsc")   END;
-    IF OXS.ccARCH = OXS.ERISC5 THEN OXB.MakeFileName(name, modid, ".r8x")  END;
-    IF OXS.ccARCH = OXS.X8664 THEN OXB.MakeFileName(name, modid, ".i8x")   END;
-    IF OXS.ccARCH = OXS.ARM64 THEN OXB.MakeFileName(name, modid, ".a8x")   END;
-    IF OXS.ccARCH = OXS.ARM32 THEN OXB.MakeFileName(name, modid, ".a4x")   END;
-    IF OXS.ccARCH = OXS.CORTEX4 THEN OXB.MakeFileName(name, modid, ".c4x") END;
-    IF OXS.ccARCH = OXS.CORTEX0 THEN OXB.MakeFileName(name, modid, ".c0x") END;
-    IF OXS.ccARCH = OXS.RISCV64 THEN OXB.MakeFileName(name, modid, ".v8x") END;
-    IF OXS.ccARCH = OXS.RISCV32 THEN OXB.MakeFileName(name, modid, ".v4x") END;
-    IF OXS.ccARCH = OXS.WASM THEN OXB.MakeFileName(name, modid, ".w4x")    END;
+    IF OXS.ccARCH = OXS.RISC5   THEN MakeFileName(name, modid, ".rsc")   END;
+    IF OXS.ccARCH = OXS.ERISC5  THEN MakeFileName(name, modid, ".r8x")  END;
+    IF OXS.ccARCH = OXS.X8664   THEN MakeFileName(name, modid, ".i8x")   END;
+    IF OXS.ccARCH = OXS.ARM64   THEN MakeFileName(name, modid, ".a8x")   END;
+    IF OXS.ccARCH = OXS.ARM32   THEN MakeFileName(name, modid, ".a4x")   END;
+    IF OXS.ccARCH = OXS.CORTEX4 THEN MakeFileName(name, modid, ".c4x") END;
+    IF OXS.ccARCH = OXS.CORTEX0 THEN MakeFileName(name, modid, ".c0x") END;
+    IF OXS.ccARCH = OXS.RISCV64 THEN MakeFileName(name, modid, ".v8x") END;
+    IF OXS.ccARCH = OXS.RISCV32 THEN MakeFileName(name, modid, ".v4x") END;
+    IF OXS.ccARCH = OXS.WASM    THEN MakeFileName(name, modid, ".w4x")    END;
 
-    Out.String("Writing object file header, imports, type descriptors, data, strings"); Out.Ln; 
     F := Files.New(name); Files.Set(R, F, 0); 
     IF version = 1 THEN
       Files.WriteString(R, modid);
@@ -414,12 +458,10 @@ MODULE OXX; (* C.Perkis 2020*)
 
     END;
 
-    Out.String("Writing program code"); Out.Ln; 
     FOR i := 0 TO pc-1 DO Files.WriteInt(R, code[i]) END ;  (*program*)
     obj := OXB.topScope.next;
 
     IF version = 1 THEN
-      Out.String("Writing procedure names list"); Out.Ln; 
       WHILE obj # NIL DO  (*procedure names list. commands are procedures that are public with no parameters*)
         IF (* (obj.exno # 0) & *) (obj.class = OXB.Const) & (obj.type.form = OXB.Proc) &
             (* (obj.type.nofpar = 0) & *) (obj.type.base = OXB.noType) THEN
@@ -431,14 +473,14 @@ MODULE OXX; (* C.Perkis 2020*)
         END ;
         obj := obj.next
       END ;
-      Files.WriteString(R, "BEGIN");
+      ss:="BEGIN";
+      Files.WriteString(R, ss);
       Files.WriteInt(R, entry+2);
 (*      Files.WriteInt(R, 4);    *)
 
       Files.Write(R, 0);
       Files.WriteInt(R, nofent); Files.WriteInt(R, entry);
       obj := OXB.topScope.next;
-      Out.String("Writing symbol entries"); Out.Ln; 
       WHILE obj # NIL DO  (*entries*)
         IF obj.exno # 0 THEN
           IF (obj.class = OXB.Const) & (obj.type.form = OXB.Proc) OR (obj.class = OXB.Var) THEN
@@ -453,21 +495,17 @@ MODULE OXX; (* C.Perkis 2020*)
         obj := obj.next
       END ;
       obj := OXB.topScope.next;
-      Out.String("Finding pointer variables"); Out.Ln; 
       WHILE obj # NIL DO  (*pointer variables*)
         IF obj.class = OXB.Var THEN FindPtrs(R, obj.type, obj.val) END ;
         obj := obj.next
       END ;
       Files.WriteInt(R, -1);
-      Out.String("Finding fixup list heads and entry"); Out.Ln; 
       Files.WriteInt(R, fixorgP); Files.WriteInt(R, fixorgD); Files.WriteInt(R, fixorgT); Files.WriteInt(R, entry);
-      Out.String("Registering file"); Out.Ln; 
       Files.Write(R, ORD("O")); Files.Register(F)
     ELSE
     (* do the equivalent for a binary Oberon-0 program *)
       Files.Register(F)
     END;
-    Out.String("File registerd"); Out.Ln
   END Close;
 
 
