@@ -239,7 +239,8 @@ BEGIN
 
 END GetUniPat;
 
-PROCEDURE This*(name: ARRAY OF CHAR): Font;
+(*
+PROCEDURE This*(name: ARRAY 32 CHAR): Font;
   VAR F: Font;
     f: Files.File; R: Files.Rider;
     minY, b, b2, b3: BYTE;
@@ -313,10 +314,13 @@ BEGIN F := root;
   END;
   RETURN F
 END This;
+*)
 
 PROCEDURE Free*;  (*remove all but first two from font list*)
 BEGIN IF root.next # NIL THEN root.next.next := NIL END
 END Free;
 
-BEGIN root := NIL; Default := This("DVSansMono16.Scn.Fnt")
+BEGIN root := NIL; Default := NIL   (* This("DVSansMono16.Scn.Fnt") *)
 END Fonts.
+
+
