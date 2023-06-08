@@ -90,7 +90,7 @@ MODULE OXP; (*N. Wirth 1.7.97 / 8.3.2020  Oberon compiler for RISC in Oberon-07*
     dc: INTEGER;    (*data counter*)
     level, exno, version: INTEGER;
     newSF: BOOLEAN;  (*option flag*)
-    ccARCH, ccWordsize, ccStackalign: INTEGER;
+    ccARCH, ccFMT, ccWordsize, ccStackalign: INTEGER;
     expression: PROCEDURE (VAR x: OXG.Item);  (*to avoid forward reference*)
     Type: PROCEDURE (VAR type: OXB.Type);
     FormalType: PROCEDURE (VAR typ: OXB.Type; dim: INTEGER);
@@ -1250,7 +1250,7 @@ expression0 is assigned to the procedure variable `expression` to allow the forw
       IF OXS.errcnt = 0 THEN
         OXG.Close(modid, key, exno, ccARCH);
         Emit(" PC, DC, Key: "); Out.Int(OXG.pc, 6); Out.Int( dc, 6); Out.Hex(key)
-      ELSE Out.Ln; Emit("compilation FAILED")
+      ELSE Out.Ln;Emit("compilation FAILED")
       END ;
       Out.Ln; 
       OXB.CloseScope; pbsList := NIL
@@ -1270,20 +1270,32 @@ expression0 is assigned to the procedure variable `expression` to allow the forw
     VAR i: INTEGER;
   BEGIN newSF := FALSE;
     ccARCH := OXS.RISC5;
+    ccFMT := OXS.rsc32;
     ccWordsize := 4;
     ccStackalign := 4;
     i:=0; WHILE o[i] > 0X DO
       IF o[i] = "s" THEN newSF := TRUE END;
       IF o[i] = "r" THEN ccARCH := OXS.RISC5 END;
-      IF o[i] = "R" THEN ccARCH := OXS.ERISC5 END;
-      IF o[i] = "I" THEN ccARCH := OXS.X8664; ccWordsize := 8; ccStackalign := 8; END;
-      IF o[i] = "A" THEN ccARCH := OXS.ARM64; ccWordsize := 8; ccStackalign := 16; END;
+      IF o[i] = "R" THEN ccARCH := OXS.ERISC5; ccFMT := OXS.rsc64 END;
+      IF o[i] = "I" THEN ccARCH := OXS.X8664; ccWordsize := 8; ccStackalign := 8;  ccFMT := OXS.rsc64 END;
+      IF o[i] = "A" THEN ccARCH := OXS.ARM64; ccWordsize := 8; ccStackalign := 16; ccFMT := OXS.rsc64 END;
       IF o[i] = "a" THEN ccARCH := OXS.ARM32 END;
       IF o[i] = "C" THEN ccARCH := OXS.CORTEX4 END;
       IF o[i] = "c" THEN ccARCH := OXS.CORTEX0 END;
-      IF o[i] = "V" THEN ccARCH := OXS.RISCV64; ccWordsize := 8; ccStackalign := 8; END;
+      IF o[i] = "V" THEN ccARCH := OXS.RISCV64; ccWordsize := 8; ccStackalign := 8; ccFMT := OXS.rsc64  END;
       IF o[i] = "v" THEN ccARCH := OXS.RISCV32 END;
       IF o[i] = "W" THEN ccARCH := OXS.WASM; ccWordsize := 8; ccStackalign := 8; END;
+
+
+      IF o[i] = "z" THEN ccFMT := OXS.raw END;
+      IF o[i] = "o" THEN ccFMT := OXS.rsc32 END;
+      IF o[i] = "O" THEN ccFMT := OXS.rsc64 END;
+      IF o[i] = "e" THEN ccFMT := OXS.elf32 END;
+      IF o[i] = "E" THEN ccFMT := OXS.elf64 END;
+      IF o[i] = "m" THEN ccFMT := OXS.macho END;
+      IF o[i] = "p" THEN ccFMT := OXS.pe32 END;
+      IF o[i] = "P" THEN ccFMT := OXS.pe64 END;
+
       INC(i)
     END
   END Option;
@@ -1378,7 +1390,7 @@ expression0 is assigned to the procedure variable `expression` to allow the forw
 	  Prep;
           NEW(dummy); dummy.class := OXB.Var; dummy.type := OXB.intType;
           expression := expression0; Type := Type0; FormalType := FormalType0;
-          OXS.Init(T, 0, ccARCH, ccWordsize, ccStackalign);
+          OXS.Init(T, 0, ccARCH, ccFMT, ccWordsize, ccStackalign);
           Module
         ELSE Emit( f); Emit( " not found");
           Out.Ln

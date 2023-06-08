@@ -73,6 +73,14 @@ MODULE OXS; (* NW 19.9.93 / 15.3.2017  Scanner in Oberon-07*)
      RISCV64* = 7878774;    (* "v8x" 0x00783876 *)
      RISCV32* = 7877750;    (* "v4x" 0x00783476 *)
      WASM*    = 7877751;    (* "w4x" 0x00783477 *)
+     raw* = 0;
+     rsc32* = 1;
+     rsc64* = 2;
+     elf32* = 3;
+     elf64* = 4;
+     macho* = 5;
+     pe32* = 6;
+     pe64* = 7;
     BYTEORIENTED* = 0; WORDORIENTED* = 1;
     nostyle* = 0; oberonstyle* = 1; basicstyle* = 2; cstyle* = 3;
 
@@ -85,7 +93,7 @@ MODULE OXS; (* NW 19.9.93 / 15.3.2017  Scanner in Oberon-07*)
     id*: Ident;  (*for identifiers*)
     str*: ARRAY stringBufSize OF CHAR;
     errcnt*: INTEGER;
-    ccARCH*, ccWordsize, ccStackalign: INTEGER;
+    ccARCH*, ccFMT*, ccWordsize, ccStackalign: INTEGER;
     ch: CHAR;  (*last character read*)
     errpos*: INTEGER;
     R: Texts.Reader;
@@ -512,8 +520,8 @@ MODULE OXS; (* NW 19.9.93 / 15.3.2017  Scanner in Oberon-07*)
 ---
 **Init** opens the source text for reading and gets the first character.
   end-procedure-description *)
-  PROCEDURE Init*(T: Texts.Text; pos: INTEGER; a,b,c: INTEGER);
-  BEGIN ccARCH := a; ccWordsize := b; ccStackalign := c;
+  PROCEDURE Init*(T: Texts.Text; pos: INTEGER; a,b,c,d: INTEGER);
+  BEGIN ccARCH := a; ccFMT:=b; ccWordsize := c; ccStackalign := d;
         errpos := pos; errcnt := 0;
         Texts.OpenReader(R, T, pos);
         Texts.Read(R, ch)
