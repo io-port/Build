@@ -423,16 +423,20 @@ MODULE OXX; (* C.Perkis 2020*)
     size := varsize + strx + comsize + (pc + nofimps + nofent + nofptrs + 1)*4;  (*varsize includes type descriptors*)
      
     IF version = 0 THEN (* host native or baremetal module file name*)
-      IF OXS.ccARCH = OXS.RISC5   THEN MakeFileName(name, modid, ".bin")   END;
-      IF OXS.ccARCH = OXS.ERISC5  THEN MakeFileName(name, modid, ".r8e")  END;
-      IF OXS.ccARCH = OXS.X8664   THEN MakeFileName(name, modid, ".i8e")   END;
-      IF OXS.ccARCH = OXS.ARM64   THEN MakeFileName(name, modid, ".a8e")   END;
-      IF OXS.ccARCH = OXS.ARM32   THEN MakeFileName(name, modid, ".a4e")   END;
-      IF OXS.ccARCH = OXS.CORTEX4 THEN MakeFileName(name, modid, ".c4e") END;
-      IF OXS.ccARCH = OXS.CORTEX0 THEN MakeFileName(name, modid, ".c0e") END;
-      IF OXS.ccARCH = OXS.RISCV64 THEN MakeFileName(name, modid, ".v8e") END;
-      IF OXS.ccARCH = OXS.RISCV32 THEN MakeFileName(name, modid, ".v4e") END;
-      IF OXS.ccARCH = OXS.WASM    THEN MakeFileName(name, modid, ".w4e")    END;
+      IF OXS.ccFMT = OXS.raw THEN
+        MakeFileName(name, modid, ".bin")
+      ELSE
+        IF OXS.ccARCH = OXS.RISC5   THEN MakeFileName(name, modid, ".bin")   END;
+        IF OXS.ccARCH = OXS.ERISC5  THEN MakeFileName(name, modid, ".r8e")  END;
+        IF OXS.ccARCH = OXS.X8664   THEN MakeFileName(name, modid, ".i8e")   END;
+        IF OXS.ccARCH = OXS.ARM64   THEN MakeFileName(name, modid, ".a8e")   END;
+        IF OXS.ccARCH = OXS.ARM32   THEN MakeFileName(name, modid, ".a4e")   END;
+        IF OXS.ccARCH = OXS.CORTEX4 THEN MakeFileName(name, modid, ".c4e") END;
+        IF OXS.ccARCH = OXS.CORTEX0 THEN MakeFileName(name, modid, ".c0e") END;
+        IF OXS.ccARCH = OXS.RISCV64 THEN MakeFileName(name, modid, ".v8e") END;
+        IF OXS.ccARCH = OXS.RISCV32 THEN MakeFileName(name, modid, ".v4e") END;
+        IF OXS.ccARCH = OXS.WASM    THEN MakeFileName(name, modid, ".w4e")    END;
+      END;
     ELSE (* regular module file name *)
       IF OXS.ccARCH = OXS.RISC5   THEN MakeFileName(name, modid, ".rsc")   END;
       IF OXS.ccARCH = OXS.ERISC5  THEN MakeFileName(name, modid, ".r8x")  END;
