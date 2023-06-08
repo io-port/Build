@@ -370,7 +370,7 @@ MODULE OXX; (* C.Perkis 2020*)
       name: OXS.Ident; ss: ARRAY 32 OF CHAR;
       F: Files.File; R: Files.Rider;
   BEGIN 
-    IF version = 0 THEN (* baremetal module exit code - branch to reset vector via register 0*)
+    IF version = 0 THEN (* host native or baremetal module exit code - branch to reset vector via register 0*)
       IF OXS.ccARCH = OXS.RISC5 THEN OXT.RPut1(3,  pc, pcb, Mov, 0, 0, 0); OXT.RPut3(pc, pcb, BR, 7, 0)   END;
       IF OXS.ccARCH = OXS.ERISC5 THEN OXT.EPut1(3,  pc, pcb, Mov, 0, 0, 0); OXT.EPut3(pc, pcb, BR, 7, 0)   END;
       IF OXS.ccARCH = OXS.X8664 THEN OXT.IPut1(3,  pc, pcb, Mov, 0, 0, 0); OXT.IPut3(pc, pcb, BR, 7, 0)   END;
@@ -422,16 +422,29 @@ MODULE OXX; (* C.Perkis 2020*)
 
     size := varsize + strx + comsize + (pc + nofimps + nofent + nofptrs + 1)*4;  (*varsize includes type descriptors*)
      
-    IF OXS.ccARCH = OXS.RISC5   THEN MakeFileName(name, modid, ".rsc")   END;
-    IF OXS.ccARCH = OXS.ERISC5  THEN MakeFileName(name, modid, ".r8x")  END;
-    IF OXS.ccARCH = OXS.X8664   THEN MakeFileName(name, modid, ".i8x")   END;
-    IF OXS.ccARCH = OXS.ARM64   THEN MakeFileName(name, modid, ".a8x")   END;
-    IF OXS.ccARCH = OXS.ARM32   THEN MakeFileName(name, modid, ".a4x")   END;
-    IF OXS.ccARCH = OXS.CORTEX4 THEN MakeFileName(name, modid, ".c4x") END;
-    IF OXS.ccARCH = OXS.CORTEX0 THEN MakeFileName(name, modid, ".c0x") END;
-    IF OXS.ccARCH = OXS.RISCV64 THEN MakeFileName(name, modid, ".v8x") END;
-    IF OXS.ccARCH = OXS.RISCV32 THEN MakeFileName(name, modid, ".v4x") END;
-    IF OXS.ccARCH = OXS.WASM    THEN MakeFileName(name, modid, ".w4x")    END;
+    IF version = 0 THEN (* host native or baremetal module file name*)
+      IF OXS.ccARCH = OXS.RISC5   THEN MakeFileName(name, modid, ".bin")   END;
+      IF OXS.ccARCH = OXS.ERISC5  THEN MakeFileName(name, modid, ".r8e")  END;
+      IF OXS.ccARCH = OXS.X8664   THEN MakeFileName(name, modid, ".i8e")   END;
+      IF OXS.ccARCH = OXS.ARM64   THEN MakeFileName(name, modid, ".a8e")   END;
+      IF OXS.ccARCH = OXS.ARM32   THEN MakeFileName(name, modid, ".a4e")   END;
+      IF OXS.ccARCH = OXS.CORTEX4 THEN MakeFileName(name, modid, ".c4e") END;
+      IF OXS.ccARCH = OXS.CORTEX0 THEN MakeFileName(name, modid, ".c0e") END;
+      IF OXS.ccARCH = OXS.RISCV64 THEN MakeFileName(name, modid, ".v8e") END;
+      IF OXS.ccARCH = OXS.RISCV32 THEN MakeFileName(name, modid, ".v4e") END;
+      IF OXS.ccARCH = OXS.WASM    THEN MakeFileName(name, modid, ".w4e")    END;
+    ELSE (* regular module file name *)
+      IF OXS.ccARCH = OXS.RISC5   THEN MakeFileName(name, modid, ".rsc")   END;
+      IF OXS.ccARCH = OXS.ERISC5  THEN MakeFileName(name, modid, ".r8x")  END;
+      IF OXS.ccARCH = OXS.X8664   THEN MakeFileName(name, modid, ".i8x")   END;
+      IF OXS.ccARCH = OXS.ARM64   THEN MakeFileName(name, modid, ".a8x")   END;
+      IF OXS.ccARCH = OXS.ARM32   THEN MakeFileName(name, modid, ".a4x")   END;
+      IF OXS.ccARCH = OXS.CORTEX4 THEN MakeFileName(name, modid, ".c4x") END;
+      IF OXS.ccARCH = OXS.CORTEX0 THEN MakeFileName(name, modid, ".c0x") END;
+      IF OXS.ccARCH = OXS.RISCV64 THEN MakeFileName(name, modid, ".v8x") END;
+      IF OXS.ccARCH = OXS.RISCV32 THEN MakeFileName(name, modid, ".v4x") END;
+      IF OXS.ccARCH = OXS.WASM    THEN MakeFileName(name, modid, ".w4x")    END;
+    END ;
 
     F := Files.New(name); Files.Set(R, F, 0); 
     IF version = 1 THEN
