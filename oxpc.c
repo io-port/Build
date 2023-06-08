@@ -35,6 +35,31 @@ int main(int argc, char *argv[])
 	OXP__Compile_(f_, 32, o_, 8);
     }else{
 	    printf("Usage: oxpc [-options] sourcefile.\n");
+	    printf("\n"); 
+	    printf("   Architecture options:\n"); 
+	    printf("      r  RISC5  \n");  
+	    printf("      R  ERISC5 \n");  
+	    printf("      I  X8664  \n");  
+	    printf("      A  ARM64  \n");  
+	    printf("      a  ARM32  \n");  
+	    printf("      C  CORTEX4\n");  
+	    printf("      c  CORTEX0\n");  
+	    printf("      V  RISCV64\n");  
+	    printf("      v  RISCV32\n");  
+	    printf("      W  WASM   \n");  
+	    printf("\n"); 
+	    printf("   Binary File Options:\n"); 
+	    printf("      n  raw    \n");  
+	    printf("      O  rsc64  \n");  
+	    printf("      o  rsc32  \n");  
+	    printf("      E  elf64  \n");  
+	    printf("      e  elf32  \n");  
+	    printf("      m  macho  \n");  
+	    printf("      P  pe64   \n");  
+	    printf("      p  pe32   \n");  
+	    printf("\n"); 
+	    printf("   Symbol File Options:\n"); 
+	    printf("      s  newSF  \n"); 
     }
     return 0;
 }
