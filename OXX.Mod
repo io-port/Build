@@ -485,19 +485,97 @@ MODULE OXX; (* C.Perkis 2020*)
          (* raw format, no header *)
       END;
       IF OXS.ccFMT = OXS.elf32 THEN
-         (* unimplemented *)
+
+        (* 32-bit ELF File Header *) 
+         WR(R,0464C457FH); (*magic*)
+         WR(R,000010102H); (*32-bit, Little-endian, current ELF, System-V ABI*)
+         WR(R,000000000H); WR(R,000000000H); (*ABI version pt.2 , padding*)
+         WR(R,000030002H); (*Executable, X86*)
+         WR(R,000000001H); (*original ELF*)
+         WR(R,000401000H); (*entrypoint*)
+         WR(R,000000034H); (*program table header offset*)
+         WR(R,000002140H); (*section header table offset*)
+         WR(R,000000000H); (*flags*)
+         WR(R,000380040H); (*header size, program header table entry size*)
+         WR(R,000400003H); (*program header table entries count, section table header entry size*)
+         WR(R,000050006H); (*section header table entries count, section table header entry for section names*)
+
+        (* 32-bit ELF Program Header *) 
+         WR(R,000000001H); (*segment type*)
+         WR(R,000000000H); (*offset of the segment in the file image*)
+         WR(R,000400000H); (*virtual address of the segment in memory*)
+         WR(R,000400000H); (*physical address if relevent*)
+         WR(R,0000000E8H); (*byte size of segment in file image, may be zero*)
+         WR(R,0000000E8H); (*byte size of segment in memory, may be zero*)
+         WR(R,000000004H); (*segment dependent flags*)
+         WR(R,000001000H); (*alignment with 0 or 1 for none*)
+
+        (* 32-bit ELF Section Header *) 
+         WR(R,000000001H); (*offset in string table for section name*)          
+         WR(R,000001000H); (*section attributes*)
+         WR(R,000401000H); (*virtual address of section in memory*)
+         WR(R,000401000H); (*offset of the section in the file image*)
+         WR(R,000000025H); (*size in bytes of the section in the file image*)
+         WR(R,000000025H); WR(R,000000000H); (*associated section index, info*)
+         WR(R,000001000H); (*section alignment*)
+
+         WR(R,000000001H);
+         WR(R,000000006H); 
+         WR(R,000002000H); 
+         WR(R,000402000H); 
+         WR(R,000402000H); 
+         WR(R,00000000DH); 
+         WR(R,00000000DH); WR(R,000000000H);
+         WR(R,000001000H); 
+
+          (* unimplemented *)
       END;
       IF OXS.ccFMT = OXS.elf64 THEN
          l := 0;
- 
-WR(R,0464C457FH); WR(R,000010102H); WR(R,000000000H); WR(R,000000000H); WR(R,0003E0002H); WR(R,000000001H); WR(R,000401000H); WR(R,000000000H);
-WR(R,000000040H); WR(R,000000000H); WR(R,000002140H); WR(R,000000000H); WR(R,000000000H); WR(R,000380040H); WR(R,000400003H); WR(R,000050006H);
-WR(R,000000001H); WR(R,000000004H); WR(R,000000000H); WR(R,000000000H); WR(R,000400000H); WR(R,000000000H); WR(R,000400000H); WR(R,000000000H);
-WR(R,0000000E8H); WR(R,000000000H); WR(R,0000000E8H); WR(R,000000000H); WR(R,000001000H); WR(R,000000000H); WR(R,000000001H); WR(R,000000005H);
-WR(R,000001000H); WR(R,000000000H); WR(R,000401000H); WR(R,000000000H); WR(R,000401000H); WR(R,000000000H); WR(R,000000025H); WR(R,000000000H);
-WR(R,000000025H); WR(R,000000000H); WR(R,000001000H); WR(R,000000000H); WR(R,000000001H); WR(R,000000006H); WR(R,000002000H); WR(R,000000000H);
-WR(R,000402000H); WR(R,000000000H); WR(R,000402000H); WR(R,000000000H); WR(R,00000000DH); WR(R,000000000H); WR(R,00000000DH); WR(R,000000000H);
-WR(R,000001000H); WR(R,000000000H); WR(R,000000000H); WR(R,000000000H); WR(R,000000000H); WR(R,000000000H); WR(R,000000000H); WR(R,000000000H);
+        (* 64-bit ELF File Header *) 
+         WR(R,0464C457FH); (*magic*)
+         WR(R,000010102H); (*64-bit, Little-endian, current ELF, System-V ABI*)
+         WR(R,000000000H); WR(R,000000000H); (*ABI version pt.2, padding*)
+         WR(R,0003E0002H); (*Executable, AMD X86-64*)
+         WR(R,000000001H); (*original ELF*)
+         WR(R,000401000H); WR(R,000000000H); (*entrypoint*)
+         WR(R,000000040H); WR(R,000000000H); (*program table header offset*)
+         WR(R,000002140H); WR(R,000000000H); (*section header table offset*)
+         WR(R,000000000H); (*flags*)
+         WR(R,000380040H); (*header size, program header table entry size*)
+         WR(R,000400003H); (*program header table entries count, section table header entry size*)
+         WR(R,000050006H); (*section header table entries count, section table header entry for section names*)
+
+        (* 64-bit ELF Program Header *) 
+         WR(R,000000001H); (*segment type*)
+         WR(R,000000004H); (*segment dependent flags*)
+         WR(R,000000000H); WR(R,000000000H); (*offset of the segment in the file image*)
+         WR(R,000400000H); WR(R,000000000H); (*virtual address of the segment in memory*)
+         WR(R,000400000H); WR(R,000000000H); (*physical address if relevent*)
+         WR(R,0000000E8H); WR(R,000000000H); (*byte size of segment in file image, may be zero*)
+         WR(R,0000000E8H); WR(R,000000000H); (*byte size of segment in memory, may be zero*)
+         WR(R,000001000H); WR(R,000000000H); (*alignment with 0 or 1 for none*)
+
+        (* 64-bit ELF Section Header *) 
+         WR(R,000000001H);                   (*offset in string table for section name*)         
+         WR(R,000000005H);                   (*header type... symbol hash table*)
+         WR(R,000001000H); WR(R,000000000H); (*section attributes*)
+         WR(R,000401000H); WR(R,000000000H); (*virtual address of section in memory*)
+         WR(R,000401000H); WR(R,000000000H); (*offset of the section in the file image*)
+         WR(R,000000025H); WR(R,000000000H); (*size in bytes of the section in the file image*)
+         WR(R,000000025H); WR(R,000000000H); (*associated section index, info*)
+         WR(R,000001000H); WR(R,000000000H); (*section alignment*)
+
+         WR(R,000000001H);                   (*offset in string table for section name*)        
+         WR(R,000000006H);                   (*header type... dynamic linking information*)
+         WR(R,000002000H); WR(R,000000000H); (*section attributes*)
+         WR(R,000402000H); WR(R,000000000H); (*virtual address of section in memory*)
+         WR(R,000402000H); WR(R,000000000H); (*offset of the section in the file image*)
+         WR(R,00000000DH); WR(R,000000000H); (*size in bytes of the section in the file image*)
+         WR(R,00000000DH); WR(R,000000000H); (*associated section index, info*)
+         WR(R,000001000H); WR(R,000000000H); (*section alignment*)
+
+ WR(R,000000000H); WR(R,000000000H); WR(R,000000000H); WR(R,000000000H); WR(R,000000000H); WR(R,000000000H);
 
 
 i:=0; WHILE i < 960 DO WR(R,0H); INC(i) END;
@@ -505,13 +583,20 @@ i:=0; WHILE i < 960 DO WR(R,0H); INC(i) END;
 WR(R,0000001B8H); WR(R,00001BF00H); WR(R,0BE480000H); WR(R,000402000H); WR(R,000000000H); WR(R,000000DBAH); WR(R,0B8050F00H); WR(R,00000003CH);
 WR(R,00FFF3148H); WR(R,000000005H); WR(R,000000000H); WR(R,000000000H); WR(R,000000000H); WR(R,000000000H); WR(R,000000000H); WR(R,000000000H);
 WR(R,000000000H); WR(R,000000000H); WR(R,000000000H); WR(R,000000000H); WR(R,000000000H); WR(R,000000000H); WR(R,000000000H); WR(R,000000000H);
-WR(R,000000000H); WR(R,000000000H); WR(R,000000000H); WR(R,000000000H); WR(R,000000000H); WR(R,000000000H); WR(R,000000000H); WR(R,000000000H);
-WR(R,000000000H); WR(R,000000000H); WR(R,000000000H); WR(R,000000000H); WR(R,000000000H); WR(R,000000000H); WR(R,000000000H); WR(R,000000000H);
-WR(R,000000000H); WR(R,000000000H); WR(R,000000000H); WR(R,000000000H); WR(R,000000000H); WR(R,000000000H); WR(R,000000000H); WR(R,000000000H);
-WR(R,000000000H); WR(R,000000000H); WR(R,000000000H); WR(R,000000000H); WR(R,000000000H); WR(R,000000000H); WR(R,000000000H); WR(R,000000000H);
-WR(R,000000000H); WR(R,000000000H); WR(R,000000000H); WR(R,000000000H); WR(R,000000000H); WR(R,000000000H); WR(R,000000000H); WR(R,000000000H);
 
-i:=0; WHILE i < 960 DO WR(R,0H); INC(i) END;
+(*
+  401000:	b8 01 00 00 00       	mov    $0x1,%eax
+  401005:	bf 01 00 00 00       	mov    $0x1,%edi
+  40100a:	48 be 00 20 40 00 00 	movabs $0x402000,%rsi
+  401011:	00 00 00 
+  401014:	ba 0d 00 00 00       	mov    $0xd,%edx
+  401019:	0f 05                	syscall 
+  40101b:	b8 3c 00 00 00       	mov    $0x3c,%eax
+  401020:	48 31 ff             	xor    %rdi,%rdi
+  401023:	0f 05                	syscall 
+*)
+
+i:=0; WHILE i < 1000 DO WR(R,0H); INC(i) END;
 
 WR(R,06C6C6548H); WR(R,057202C6FH); WR(R,0646C726FH); WR(R,00000000AH); WR(R,000000000H); WR(R,000000000H); WR(R,000000000H); WR(R,000000000H);
 WR(R,000000000H); WR(R,000000000H); WR(R,000000000H); WR(R,000010003H); WR(R,000401000H); WR(R,000000000H); WR(R,000000000H); WR(R,000000000H);
